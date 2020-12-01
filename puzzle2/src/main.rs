@@ -13,10 +13,12 @@ fn main() -> std::io::Result<()>{
     }
 
     for (i, el1) in v.iter().enumerate() {
-        for el2 in v[i+1..].iter() {
-            if el1 + el2 == 2020 {
-                println!("{}", el1 * el2);
-                return Ok(())
+        for (j, el2) in v[i+1..].iter().enumerate() {
+            for el3 in v[j+1..].iter() {
+                if el1 + el2 + el3 ==2020 {
+                    println!("{}", el1 * el2 * el3);
+                    return Ok(())
+                }
             }
         }
     }
