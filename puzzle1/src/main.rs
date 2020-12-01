@@ -12,6 +12,7 @@ fn main() -> std::io::Result<()>{
         v.push(line.parse::<i32>().unwrap_or(0));
     }
 
+    //Iterate over the Vec, getting two distinct elements, to check if meet the criteria of summing to 2020
     for (i, el1) in v.iter().enumerate() {
         for el2 in v[i+1..].iter() {
             if el1 + el2 == 2020 {
