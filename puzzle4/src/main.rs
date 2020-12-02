@@ -29,14 +29,31 @@ fn main() -> std::io::Result<()>{
             Some(f) => f,
         };
         let mut ccount=0;
-        for c2 in line[colon+1..].chars() {
-            if c2 == c {
-                ccount+=1;
-            }
+
+        println!("char1i: {}, char2i: {}, char: {}, line: {}", minc, maxc, c, &line[colon+1..]);
+        println!("char1: {}, char2: {}", &line[colon + 1 + minc as usize ..], &line[colon + 1 + maxc as usize..]);
+        //check char 1
+        if c == match line[colon +1+ minc as usize..].chars().next() {
+            None=> continue,
+            Some(f) => f,
+        } {
+            println!("char 1 match");
+            ccount+=1;
         }
-        println!("ccount: {}, maxc: {}, minc: {}", ccount, maxc, minc);
-        if ccount <= maxc && ccount >= minc {
+
+        if c == match line[colon+1+maxc as usize ..].chars().next() {
+            None => continue,
+            Some(f) => f,
+        } {
+            println!("char 2 match");
+            ccount+=1;
+        }
+
+        if ccount ==1 {
+            println!("Valid");
             n +=1;
+        }else{
+            println!("Invalid");
         }
     }
     println!("{} passwords work, out of {}", n, x);
