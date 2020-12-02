@@ -30,30 +30,24 @@ fn main() -> std::io::Result<()>{
         };
         let mut ccount=0;
 
-        println!("char1i: {}, char2i: {}, char: {}, line: {}", minc, maxc, c, &line[colon+1..]);
-        println!("char1: {}, char2: {}", &line[colon + 1 + minc as usize ..], &line[colon + 1 + maxc as usize..]);
-        //check char 1
+        //check char 1, need to add 1 to account for the space
         if c == match line[colon +1+ minc as usize..].chars().next() {
             None=> continue,
             Some(f) => f,
         } {
-            println!("char 1 match");
             ccount+=1;
         }
 
+        //Check char 2, need to add 1 to account for the space
         if c == match line[colon+1+maxc as usize ..].chars().next() {
             None => continue,
             Some(f) => f,
         } {
-            println!("char 2 match");
             ccount+=1;
         }
 
         if ccount ==1 {
-            println!("Valid");
             n +=1;
-        }else{
-            println!("Invalid");
         }
     }
     println!("{} passwords work, out of {}", n, x);
