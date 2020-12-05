@@ -7,8 +7,8 @@ fn get_val(line : &str) -> u32 {
     let mut size = 64;
 
     let mut l = 0;
-    let mut _r = 6;
-    let mut size2 = 3;
+    let mut _r = 8;
+    let mut size2 = 4;
 
     for (i, c) in line.chars().enumerate() {
         match i {
