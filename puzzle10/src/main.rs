@@ -48,6 +48,8 @@ fn get_val(line : &str) -> u32 {
         }
     }
 
+    //println!("{} Row, {} Col, {} ID, {} line", bot, l, bot*8+l, line);
+
     return bot*8+l;
 }
 
@@ -56,17 +58,27 @@ fn main() -> std::io::Result<()>{
     let mut text = String::new();
     file.read_to_string(&mut text)?;
 
-    let mut max=0;
+    let mut v : Vec<u32> = Vec::new();
 
     //split at blank lines to get blocks
     for line in text.lines() {
         let new = get_val(&line);
-        if new > max {
-            max = new;
-        }
-        //return Ok(());
+        v.push(new);
     }
 
-    println!("{} is the max seat ID", max);
+    //sort v
+    v.sort_unstable();
+    let mut last = 0;
+    for i in v {
+        //println!("{}", i);
+        if i-last==2 {
+            println!("{} is an open seat ID", last + 1);
+            last += 1;
+            break;
+        }
+        last = i;
+    }
+
+    println!("{} is my seat ID", last);
     Ok(())
 }
