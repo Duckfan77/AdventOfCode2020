@@ -4,14 +4,23 @@ use std::collections::HashSet;
 
 fn num_yes(block : &str) -> usize {
     let mut set: HashSet<char> = HashSet::with_capacity(10);
+    let mut v : Vec<char> = Vec::new();
+
+    //populate set with all characters, to be whittled down
+    for c in "abcdefghijklmnopqrstuvwxyz".chars(){
+        set.insert(c);
+    }
 
     //iterate over lines
     for line in block.lines() {
+        v.clear();
         //get chars in line
         for c in line.chars() {
             //insert the character
-            set.insert(c);
+            v.push(c);
         }
+        //retain only the characters that are in this line in the set
+        set.retain(|c| v.contains(c));
     }
 
     return set.len();
