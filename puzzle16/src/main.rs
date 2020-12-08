@@ -43,38 +43,78 @@ fn main() -> std::io::Result<()>{
         };
     }
 
-    let mut acc = 0;
-    let mut i = 0;
-    //Follow instructions
-    loop {
+    let mut save=0;
 
-        //stop at start of infinite loop
-        if v[i].touched {break;}
-
-        //mark instruction as visited
-        v[i].touched = true;
-
-        //execute each instruction
-        match v[i].op {
-            //change instruction pointer by val on jmp instructions
-            Opcode::Jmp => {
-                i = (i as i32 + v[i].val) as usize;
-            },
-
-            //change global accumulator by val, then go to next instruction on acc
+    for ptr in 0..v.len() {
+        //Change the nop or jmp instruction under the pointer, skip if acc
+        //println!("Adjusting index {}", ptr);
+        match v[ptr].op {
+            Opcode::Jmp => v[ptr].op = Opcode::Nop,
+            Opcode::Nop => v[ptr].op = Opcode::Jmp,
             Opcode::Acc => {
-                acc += v[i].val;
-                i += 1;
+                //println!("Is ACC, skip");
+                continue;
             },
+        };
 
-            //Just go to next instruction on nops
-            Opcode::Nop => {
-                i += 1;
+        let mut acc = 0;
+        let mut i = 0;
+        let mut term = false;
+        //Follow instructions
+        loop {
+            //check for termination
+            if i >= v.len() {
+                //println!("TERMINATES");
+                term = true;
+                break;
+            }
+
+            //stop at start of infinite loop
+            if v[i].touched {break;}
+
+            //mark instruction as visited
+            v[i].touched = true;
+
+            //execute each instruction
+            match v[i].op {
+                //change instruction pointer by val on jmp instructions
+                Opcode::Jmp => {
+                    i = (i as i32 + v[i].val) as usize;
+                },
+
+                //change global accumulator by val, then go to next instruction on acc
+                Opcode::Acc => {
+                    acc += v[i].val;
+                    i += 1;
+                },
+
+                //Just go to next instruction on nops
+                Opcode::Nop => {
+                    i += 1;
+                }
             }
         }
+
+        //program terminates
+        if term {
+            save = acc;
+            break;
+        }
+
+        //clean up touched not reseting
+        for instr in v.iter_mut() {
+            instr.touched = false;
+        }
+
+        //change the instruction back, it doesn't terminate
+        match v[ptr].op {
+            Opcode::Jmp => v[ptr].op = Opcode::Nop,
+            Opcode::Nop => v[ptr].op = Opcode::Jmp,
+            Opcode::Acc => (),
+        };
     }
 
-    println!("Accumulator is {} immediately prior to instruction executing twice", acc);
+    println!("Accumulator is {} immediately prior to termination", save);
 
     Ok(())
 }
