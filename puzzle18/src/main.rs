@@ -6,39 +6,37 @@ fn main() -> std::io::Result<()>{
     let mut text = String::new();
     file.read_to_string(&mut text)?;
 
-    let mut data: Vec<i32> = Vec::new();
+    let mut data: Vec<i64> = Vec::new();
 
     //populate data vector
     for line in text.lines() {
-        data.push(line.parse::<i32>().unwrap_or(0));
+        data.push(line.parse::<i64>().unwrap_or(0));
     }
 
-    let mut el: i32=0;
+    let error = 90433990;
+    let mut size = 2;
+    let mut min = i64::MAX;
+    let mut max = i64::MIN;
+    let mut done = false;
 
-    let pre = 25;
+    while !done {
+        //iterate over all slices of size size
+        for i in size..data.len()+1 {
+            let slice = &data[i-size..i];
 
-    for (i, el1) in data[pre..].iter().enumerate() {
-        let mut good = false;
+            if slice.iter().sum::<i64>() == error {
 
-        el = *el1;
+                min = *slice.iter().min().unwrap_or(&min);
+                max = *slice.iter().max().unwrap_or(&max);
 
-        let slice = &data[i..i+pre];
-
-        for (j, el2) in slice.iter().enumerate() {
-            for el3 in slice[j+1..].iter() {
-                if *el1 == el2+el3 {
-                    good = true;
-                }
+                done = true;
+                break;
             }
         }
-
-        if !good {
-            println!("No match found, exiting");
-            break;
-        }
+        size += 1;
     }
 
-    println!("{} is the element with no match", el);
+    println!("The size is {}, min: {}, max: {}, sum: {}", size-1, min, max, min+max);
 
     Ok(())
 }
