@@ -13,21 +13,34 @@ const WIDTH: usize = 97;
 
 fn iterate_array(array: [[Space; WIDTH]; HEIGHT]) -> ([[Space; WIDTH]; HEIGHT], bool) {
 
-    let mut outarray: [[Space; WIDTH]; HEIGHT] = [[Space::Floor; WIDTH]; HEIGHT];
+    let mut outarray: [[Space; WIDTH]; HEIGHT] = [[Space::Empty; WIDTH]; HEIGHT];
     let mut changed = false;
 
     for i in 1..(HEIGHT-1) as i32 {
         for j in 1..(WIDTH-1) as i32 {
-            //get number full around the cell
-            let mut countfull = 0;
-            for voff in -1..2 {
-                for hoff in -1..2 {
-                    //don't look at 0,0
-                    if voff==0 && hoff==0 {
-                        continue;
-                    }
 
-                    countfull += if array[(i+voff) as usize][(j+hoff) as usize] == Space::Occupied {1} else {0};
+            //Iterate along each axis from the cell
+            let mut countfull = 0;
+            for (voff, hoff) in [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)].iter() {
+                let mut y = i;
+                let mut x = j;
+                let mut chair = false;
+
+                //iterate along the axis defined by (voff, hoff), to find first chair
+                while !chair {
+                    y += voff;
+                    x += hoff;
+
+                    match array[y as usize][x as usize] {
+                        Space::Occupied => {
+                            chair = true;
+                            countfull += 1;
+                        },
+                        Space::Floor => (),
+                        Space::Empty => {
+                            chair = true;
+                        }
+                    }
                 }
             }
 
@@ -45,7 +58,7 @@ fn iterate_array(array: [[Space; WIDTH]; HEIGHT]) -> ([[Space; WIDTH]; HEIGHT], 
                 }
 
                 Space::Occupied => {
-                    if countfull >= 4 {
+                    if countfull >= 5 {
                         changed = true;
                         Space::Empty
                     } else {
@@ -64,8 +77,8 @@ fn main() -> std::io::Result<()>{
     let mut text = String::new();
     file.read_to_string(&mut text)?;
 
-    //95 elements in a row, 98 rows, add padding of floor to make math easier, don't need to deal with edge detection
-    let mut array: [[Space; WIDTH]; HEIGHT] = [[Space::Floor; WIDTH]; HEIGHT];
+    //95 elements in a row, 98 rows, add padding of Empty to make math easier, don't need to deal with edge detection
+    let mut array: [[Space; WIDTH]; HEIGHT] = [[Space::Empty; WIDTH]; HEIGHT];
 
     //populate array
     for (i, line) in text.lines().enumerate() {
