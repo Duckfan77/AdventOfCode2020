@@ -12,6 +12,7 @@ fn main() -> std::io::Result<()>{
 
     //modulus, offset
     let mut v: Vec<(u128, u128)> = Vec::new();
+    #[allow(non_snake_case)]
     let mut M: u128 = 1;
 
     for (i, time) in rts.split(",").enumerate() {
