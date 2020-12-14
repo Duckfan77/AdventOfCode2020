@@ -45,8 +45,7 @@ fn main() -> std::io::Result<()>{
 struct ProgramState {
     pub mem: HashMap<u64, u64>,
     pub mask: String,
-    pub mask1: u64,
-    pub mask0: u64,
+    pub masks: Vec<(u64, u64)>,//(mask1, mask0)
 }
 
 impl ProgramState {
@@ -54,16 +53,17 @@ impl ProgramState {
         ProgramState{
             mem: HashMap::new(),
             mask: String::from(""),
-            mask1: ZEROS,
-            mask0: ONES,
+            masks: Vec::new(),
         }
     }
 
     pub fn add_val(&mut self, loc: u64, val: u64) -> () {
-        let val = val & self.mask0; //mask in the 0 overwrites
-        let val = val | self.mask1; //mask in the 1 overwrites
-        self.mem.insert(loc, val);
-        println!("Wrote {} to {} postmask", val, loc);
+        for (mask1, mask0) in self.masks.iter() {
+            let loc = loc & mask0;
+            let loc = loc | mask1;
+            self.mem.insert(loc, val);
+            println!("Wrote {} to {} postmask", val, loc);
+        }
     }
 
     pub fn get_mem_iter(&self) -> Iter<u64, u64> {
@@ -73,45 +73,76 @@ impl ProgramState {
     pub fn set_mask(&mut self, mask: String) -> () {
         //init values
         self.mask=mask;
-        self.mask1 = ZEROS;
-        self.mask0 = ONES;
+        self.masks.clear();
 
+        //get count of Xs, to get number of ways to arrange floating bits
+        let mut xcount=0;
         for c in self.mask.chars() {
-            match c {
-                '1' => {
-                    //Insert active character for masking in 1s, 1
-                    self.mask1 <<= 1;
-                    self.mask1 |= TRAIL_ONE;
-
-                    //Insert silent character for masking in 0s, 1
-                    self.mask0 <<= 1;
-                    self.mask0 |= TRAIL_ONE;
-                }
-
-                '0' => {
-                    //Insert silent character for masking in 1s, 0
-                    self.mask1 <<= 1;
-                    self.mask1 &= TRAIL_ZERO;
-
-                    //Insert active character for masking in 0s, 0
-                    self.mask0 <<= 1;
-                    self.mask0 &= TRAIL_ZERO;
-                }
-
-                'X' => {
-                    //Insert silent character for masking in 1s, 0
-                    self.mask1 <<= 1;
-                    self.mask1 &= TRAIL_ZERO;
-
-                    //Insert silent character for masking in 0s, 1
-                    self.mask0 <<= 1;
-                    self.mask0 |= TRAIL_ONE;
-                }
-
-                 _  => {
-                     panic!("Unexpected character {} in mask {}", c, self.mask);
-                 }
+            if c == 'X' {
+                xcount += 1;
             }
+        }
+
+        //create a mask for each arrangement of floating bits
+        for i in 0..(2u64.pow(xcount)){
+            let mut worki = i;
+            let mut mask1 = ZEROS;
+            let mut mask0 = ONES;
+            for c in self.mask.chars() {
+                match c {
+                    '1' => {
+                        //Insert active character for masking in 1s, 1
+                        mask1 <<= 1;
+                        mask1 |= TRAIL_ONE;
+
+                        //Insert silent character for masking in 0s, 1
+                        mask0 <<= 1;
+                        mask0 |= TRAIL_ONE;
+                    }
+
+                    '0' => {
+                        //Insert silent character for masking in 1s, 0
+                        mask1 <<= 1;
+                        mask1 &= TRAIL_ZERO;
+
+                        //Insert silent character for masking in 0s, 0
+                        mask0 <<= 1;
+                        mask0 |= TRAIL_ONE;
+                    }
+
+                    'X' => {//insert based on least significant bit of i, and then shift i
+                        match worki%2 {
+                            0 => {//mask in a 0 this time
+                                mask1 <<= 1;
+                                mask1 &= TRAIL_ZERO;
+
+                                mask0 <<= 1;
+                                mask0 &= TRAIL_ZERO;
+                            }
+
+                            1=> {//mask in 1 this time
+                                //Insert active character for masking in 1s, 1
+                                mask1 <<= 1;
+                                mask1 |= TRAIL_ONE;
+
+                                //Insert silent character for masking in 0s, 1
+                                mask0 <<= 1;
+                                mask0 |= TRAIL_ONE;
+                            }
+
+                            _ => {
+                                panic!("Unexpected value in modulo 2 of i {}", i%2);
+                            }
+                        }
+                        worki >>= 1;
+                    }
+
+                    _  => {
+                        panic!("Unexpected character {} in mask {}", c, self.mask);
+                    }
+                }
+            }
+            self.masks.push((mask1, mask0));
         }
     }
 }
