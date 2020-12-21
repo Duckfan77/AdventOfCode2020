@@ -3,7 +3,7 @@
 use std::fs::File;
 use std::io::prelude::*;
 
-const RULE_CNT: usize = 135;
+const RULE_CNT: usize = 136;
 
 struct Nonterminal {
     pub index: usize,
