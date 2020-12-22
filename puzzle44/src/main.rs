@@ -10,11 +10,11 @@ use std::collections::VecDeque;
  */
 fn playgame(mut d1: VecDeque<i32>, mut d2: VecDeque<i32>, g: i32) -> (bool, VecDeque<i32>, VecDeque<i32>) {
     println!("=== Game {} ===", g);
-    let mut r = 0;
+    let mut _r = 0;
     let mut history: Vec<(Vec<i32>, Vec<i32>)> = Vec::new();
     while d2.len() != 0 && d1.len() != 0 {
-        r += 1;
-        //println!("\n-- Round {} (Game {}) --", r, g);
+        _r += 1;
+        //println!("\n-- Round {} (Game {}) --", _r, g);
         //println!("P1's deck: {:?}", d1);
         //println!("P2's deck: {:?}", d2);
 
@@ -42,11 +42,11 @@ fn playgame(mut d1: VecDeque<i32>, mut d2: VecDeque<i32>, g: i32) -> (bool, VecD
         //check if recurse
         if c1 > d1.len() as i32 || c2 > d2.len() as i32{//can't recurse, not enough cards
             if c1 > c2 {
-                //println!("P1 wins round {} of game {}!", r, g);
+                //println!("P1 wins round {} of game {}!", _r, g);
                 d1.push_back(c1);
                 d1.push_back(c2);
             } else {
-                //println!("P2 wins round {} of game {}!", r, g);
+                //println!("P2 wins round {} of game {}!", _r, g);
                 d2.push_back(c2);
                 d2.push_back(c1);
             }
@@ -72,11 +72,11 @@ fn playgame(mut d1: VecDeque<i32>, mut d2: VecDeque<i32>, g: i32) -> (bool, VecD
             //Find winner using recursive game
             let (p1win, _, _) = playgame(d1p, d2p, g+1);
             if p1win {
-                //println!("\n...anyway, back to game 1.\n Player 1 wins round {} of game {}!", r, g);
+                //println!("\n...anyway, back to game 1.\n Player 1 wins round {} of game {}!", _r, g);
                 d1.push_back(c1);
                 d1.push_back(c2);
             } else {
-                //println!("\n...anyway, back to game 1.\n Player 2 wins round {} of game {}!", r, g);
+                //println!("\n...anyway, back to game 1.\n Player 2 wins round {} of game {}!", _r, g);
                 d2.push_back(c2);
                 d2.push_back(c1);
             }
