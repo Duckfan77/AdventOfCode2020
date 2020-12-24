@@ -63,7 +63,7 @@ fn iterate(map: HashSet<Complex<i32>>) -> HashSet<Complex<i32>> {
         //Check if any adjacent cell should turn black
         //look at each cell around set that isn't set, and check its adjacent cells
         for n in NEIGHBORS.iter() {
-            let mut blank = set+n;
+            let blank = set+n;
             //skip it if it's already set
             if map.contains(&blank) {
                 continue;
