@@ -35,7 +35,50 @@ fn main() -> std::io::Result<()>{
         }
     }
 
+    for _ in 0..100 {
+        sparse_grid = iterate(sparse_grid);
+    }
+
     println!("Total number of black tiles: {}", sparse_grid.len());
 
     Ok(())
+}
+
+fn iterate(map: HashSet<Complex<i32>>) -> HashSet<Complex<i32>> {
+    let mut outmap: HashSet<Complex<i32>> = HashSet::new();
+    static NEIGHBORS: [Complex<i32>; 6] = [Complex::new(1, 0), Complex::new(-1, 0), Complex::new(0, 1), Complex::new(0, -1), Complex::new(1, -1), Complex::new(-1, 1)];
+
+    for set in map.iter() {
+        //Check if maintain this cell in the next map
+        let mut setadj = 0;
+        for adj in NEIGHBORS.iter() {
+            if map.contains(&(set+adj)) {
+                setadj += 1;
+            }
+        }
+        if !(setadj==0 || setadj > 2) {
+            outmap.insert(*set);
+        }
+
+        //Check if any adjacent cell should turn black
+        //look at each cell around set that isn't set, and check its adjacent cells
+        for n in NEIGHBORS.iter() {
+            let mut blank = set+n;
+            //skip it if it's already set
+            if map.contains(&blank) {
+                continue;
+            }
+            let mut setadj = 0;
+            for adj in NEIGHBORS.iter() {
+                if map.contains(&(blank+adj)) {
+                    setadj += 1;
+                }
+            }
+            if setadj==2 {
+                outmap.insert(blank);
+            }
+        }
+    }
+
+    outmap
 }
