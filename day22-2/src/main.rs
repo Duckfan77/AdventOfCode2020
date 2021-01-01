@@ -19,32 +19,47 @@ fn main() -> std::io::Result<()>{
             let allergen = allergen.trim();
             //create the hashset if it doesn't exist. If it *does* exist, remove all elements not in the new item
             if !pairs.contains_key(allergen) {
-                pairs.insert(String::from(allergen), ing.split(" ").map(|x| String::from(x)).collect::<HashSet<String>>());
+                pairs.insert(String::from(allergen), ing.split_terminator(" ").map(|x| String::from(x)).collect::<HashSet<String>>());
             } else {
-                pairs.get_mut(allergen).unwrap().retain(|i| ing.split(" ").map(|x| String::from(x)).collect::<Vec<String>>().contains(i));
+                pairs.get_mut(allergen).unwrap().retain(|i| ing.split_terminator(" ").map(|x| String::from(x)).collect::<Vec<String>>().contains(i));
             }
         }
     }
 
-    //find ingredients that are definitely not allergens
-    let mut clean: Vec<String> = Vec::new();
-    for line in text.lines() {
-        let (ing, _) = line.split_at(line.find("(").unwrap());
-        for i in ing.split(" ") {
-            let mut add = true;
-            for v in pairs.values() {
-                if v.contains(i) {
-                    add = false;
-                    break
+    //same solver code from puzzle 32 (day16-2), adapted to fit current datastructures
+    let mut v: Vec<String> = pairs.values().filter(|x| x.len()==1).map(|x| String::from(x.iter().next().unwrap())).collect();
+    let mut vtemp: Vec<String> = Vec::new();
+
+    //println!("v: {:?}\n", v);
+
+    while v.len() > 0 {
+        vtemp.clear();
+        for used in v.drain(..) {
+            //println!("Examining {}", used);
+            for (_a, list) in pairs.iter_mut() {
+                if list.len() > 1 {
+                    list.remove(&used);
+                    //println!("Removing {} from {} list", used, _a);
+                    if list.len() == 1 {
+                        vtemp.push(String::from(list.iter().next().unwrap()));
+                        //println!("Adding {} to vtemp", list.iter().next().unwrap());
+                    }
                 }
             }
-            if add {
-                clean.push(String::from(i));
-            }
         }
+        v.append(&mut vtemp);
+        println!("End of Cycle, v: {:?}", v);
     }
 
-    println!("{:?}\n total number: {}", clean, clean.len());
+    let mut  out = String::new();
+    let mut sorted_keys = pairs.keys().map(|x| String::from(x)).collect::<Vec<String>>();
+    sorted_keys.sort_unstable();
+    for allergen in sorted_keys.iter() {
+        out.push_str(pairs.get(allergen).unwrap().iter().next().unwrap());
+        out.push(',');
+    }
+
+    println!("output string:\n{}", out);
 
     Ok(())
 }
